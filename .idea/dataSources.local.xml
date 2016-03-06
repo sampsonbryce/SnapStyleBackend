@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="dataSourceStorageLocal">
-    <data-source name="MySQL - @snapstyledatabase.cq8hu1db1bzh.us-west-2.rds.amazonaws.com" uuid="85c5b1f8-867c-46da-a97a-e30b76ce9a26">
+    <data-source name="MySQL - snapstyle@snapstyledatabase.cq8hu1db1bzh.us-west-2.rds.amazonaws.com" uuid="cd84593c-59a5-45ba-bd93-6a63d8ccfec6">
       <secret-storage>master_key</secret-storage>
       <user-name>sampsonbryce</user-name>
-      <schema-pattern>innodb.*</schema-pattern>
-      <default-schemas>innodb.*</default-schemas>
+      <schema-pattern>snapstyle.*</schema-pattern>
+      <default-schemas>snapstyle.*</default-schemas>
     </data-source>
   </component>
 </project>
