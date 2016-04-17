@@ -4,7 +4,7 @@ var connection = require('../DatabaseConn.js');
 
 router.get('/', returnAllUsers);
 router.post('/create_account', createAccount);
-router.get('/login', login);
+router.post('/login', login);
 
 
 function returnAllUsers(req, res) {
@@ -80,6 +80,7 @@ function createAccount(req, res) {
 }
 
 function login(req, res) {
+    console.log("IN LOGIN");
     var email = req.body.Email;
     var password = req.body.Pass;
     console.log(email, password);
