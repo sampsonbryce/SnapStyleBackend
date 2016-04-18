@@ -6,8 +6,8 @@ var routes = require('./routes/routes.js');
 
 var app = express();
 
-app.use(body_parser.json());
-app.use(body_parser.urlencoded({extended: true}));
+app.use(body_parser.json({limit: '50mb'}));
+app.use(body_parser.urlencoded({extended: true, limit: '50mb'}));
 
 app.use('/', routes);
 

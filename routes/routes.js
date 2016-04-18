@@ -5,6 +5,7 @@ var connection = require('../DatabaseConn.js');
 router.get('/', returnAllUsers);
 router.post('/create_account', createAccount);
 router.post('/login', login);
+router.post('/post', post);
 
 
 function returnAllUsers(req, res) {
@@ -117,6 +118,12 @@ function login(req, res) {
                 }
             });
     }
+}
+
+function post(req, res){
+    console.log("POSTING");
+    res.writeHead(200);
+    res.end()
 }
 
 
