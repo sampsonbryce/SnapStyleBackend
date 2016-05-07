@@ -3,8 +3,7 @@ var router = express.Router();
 var connection = require('../DatabaseConn.js');
 
 router.get('/', returnAllUsers);
-router.post('/create_account', createAccount);
-router.post('/login', login);
+router.post('/add_user', addUser);
 router.post('/post', post);
 
 
@@ -23,31 +22,25 @@ function returnAllUsers(req, res) {
         });
 }
 
-function createAccount(req, res) {
+function addUser(req, res) {
     console.log("Getting Values");
-    var name = req.body.Name;
     var email = req.body.Email;
-    var username = req.body.Uname;
-    var password = req.body.Pass;
-    console.log(name, email, username, password);
-    if (name == undefined || email == undefined || username == undefined || password == undefined) {
+    console.log(email);
+    if (email == undefined) {
         console.log("Error getting values for query");
         res.writeHead(500);
         res.write("A json value is undefined");
         res.end();
     }
     else {
-
         console.log("querying");
         //check email or username exists
-
-        connection.query('SELECT * FROM users WHERE email=? OR username=?', [email, username],
+        connection.query('SELECT * FROM users WHERE email=?', [email],
             function (err, rows, fields) {
                 if (!err) {
-
                     //insert if none already exist in database
                     if (!rows.length) {
-                        connection.query('INSERT INTO users VALUES (DEFAULT, ?, ?, ?, ?, DEFAULT)', [email, name, username, password],
+                        connection.query('INSERT INTO users VALUES (DEFAULT, ?)', [email],
                             function (err, rows, fields) {
                                 if (!err) {
                                     console.log('Account Created');
@@ -78,54 +71,33 @@ function createAccount(req, res) {
                 }
             });
     }
+
 }
 
-function login(req, res) {
-    console.log("IN LOGIN");
-    var email = req.body.Email;
-    var password = req.body.Pass;
-    console.log(email, password);
-    if (email == undefined || password == undefined) {
-        console.log("Error getting values for query");
-        res.writeHead(500);
-        res.write("A json value is undefined");
-        res.end();
-    }
-    else {
-        connection.query('SELECT * FROM users WHERE email=? AND password=?', [email, password],
+function post(req, res) {
+    console.log("POSTING");
+    var img = req.body.image;
+    var desc = req.body.desc;
+    console.log("Image", img);
+    console.log("Desc", desc);
+    if (img) {
+        connection.query("INSERT INTO posts VALUES (DEFAULT, 1, ?, DEFAULT, ?)", [desc, img],
             function (err, rows, fields) {
-                console.log(rows);
-                if (!err) {
-                    if (rows.length) {
-                        res.writeHead(200);
-                        res.write("Account Exists");
-                        console.log('Account Exists');
-                        res.end();
-                    }
-                    else
-                    {
-                        res.writeHead(406);
-                        res.write("Account Does Not Exist");
-                        console.log("Account Does Not Exist");
-                        res.end();
-                    }
+                if (err) {
+                    res.writeHead(500);
+                    res.write("Error while inserting post");
+                    console.log('Error while inserting post. ' + err);
+                    res.end();
                 }
                 else {
-                    res.writeHead(500);
-                    res.write("Error while performing query");
-                    console.log('Error while performing Query. ' + err);
+                    res.writeHead(200);
+                    res.write("Sucess");
+                    console.log('Sucess Inserting post.');
                     res.end();
                 }
             });
     }
 }
-
-function post(req, res){
-    console.log("POSTING");
-    res.writeHead(200);
-    res.end()
-}
-
 
 module.exports = router;
 
