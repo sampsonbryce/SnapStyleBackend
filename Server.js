@@ -8,9 +8,16 @@ var app = express();
 
 app.use(body_parser.json({limit: '50mb'}));
 app.use(body_parser.urlencoded({extended: true, limit: '50mb'}));
-
 app.use('/', routes);
-app.use(stormpath.init(app));
+app.use(stormpath.init(app, {
+        expand: {
+            customData: true
+        },
+        web: {
+            produces: ['application/json']
+        }
+    }
+));
 
 app.on('stormpath.ready', function () {
     app.listen(3000, function () {

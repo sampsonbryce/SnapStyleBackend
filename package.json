@@ -5,7 +5,9 @@
   "dependencies": {
     "express": "~4.13.1",
     "mysql": "^2.5.4",
-    "crypto": "^3.16",
-    "util": "^0.10.3"
+    "express-stormpath": "~3.1.2",
+    "body-parser": "~1.15.1",
+    "mocha": "~2.4.5",
+    "chai": "~3.5.0"
   }
 }

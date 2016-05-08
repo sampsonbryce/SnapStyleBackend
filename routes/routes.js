@@ -1,10 +1,14 @@
 var express = require('express');
 var router = express.Router();
 var connection = require('../DatabaseConn.js');
+var stormpath = require('express-stormpath');
 
 router.get('/', returnAllUsers);
-router.post('/add_user', addUser);
-router.post('/post', post);
+router.get('/add_user', stormpath.loginRequired, addUser);
+router.post('/post', stormpath.loginRequired, post);
+router.post('/get_feed', stormpath.loginRequired, returnFeed);
+
+var apiKey = process.env.STORMPATH_CLIENT_API_ID;
 
 
 function returnAllUsers(req, res) {
@@ -22,9 +26,16 @@ function returnAllUsers(req, res) {
         });
 }
 
+function returnFeed(req, res) {
+    console.log("returning feed");
+    console.log(req.user);
+}
+
+
 function addUser(req, res) {
     console.log("Getting Values");
-    var email = req.body.Email;
+    console.log("USER", req.user);
+    email = req.user.email;
     console.log(email);
     if (email == undefined) {
         console.log("Error getting values for query");
@@ -71,7 +82,6 @@ function addUser(req, res) {
                 }
             });
     }
-
 }
 
 function post(req, res) {
