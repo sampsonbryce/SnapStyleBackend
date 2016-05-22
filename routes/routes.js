@@ -2,17 +2,19 @@ var express = require('express');
 var router = express.Router();
 var connection = require('../DatabaseConn.js');
 var stormpath = require('express-stormpath');
+var squel = require('squel');
+var util = require('util');
 
 router.get('/', returnAllUsers);
 router.get('/add_user', stormpath.loginRequired, addUser);
 router.post('/post', stormpath.loginRequired, post);
 router.get('/get_feed', stormpath.loginRequired, returnFeed);
+router.post('/yes_clicked', stormpath.loginRequired, yesPost);
 
 var apiKey = process.env.STORMPATH_CLIENT_API_ID;
 
 
 function returnAllUsers(req, res) {
-    console.log("querying");
     connection.query('SELECT * FROM users',
         function (err, rows, fields) {
             if (!err) {
@@ -26,13 +28,35 @@ function returnAllUsers(req, res) {
         });
 }
 
+function yesPost(req, res) {
+    console.log('adding yes');
+    var post_id = req.body.post_id;
+    var query = squel.update()
+            .table('posts', 'p')
+            .set('p.yes_count = p.yes_count + 1')
+            .where(util.format('p.id = %s', post_id))
+            .toString();
+    console.log(query);
+    connection.query(query,
+        function (err, rows, fields) {
+            if (!err) {
+                res.writeHead(200);
+                res.end();
+            }
+            else {
+                console.log('Error while performing Query. ' + err);
+                res.writeHead(500);
+                res.write("Error while performing query");
+                res.end();
+            }
+        });
+}
+
 function returnFeed(req, res) {
-    console.log("returning feed");
-    //console.log(req.user);
-    connection.query('SELECT users.id, first_name, last_name, posts.user_id, description, location, image, date_created, email FROM posts ' +
+    connection.query('SELECT posts.id AS post_id, users.id, first_name, last_name, posts.user_id, description, location, image, date_created, email, posts.tips_count, posts.yes_count FROM posts ' +
         'INNER JOIN users ON users.id = posts.user_id ' +
         'INNER JOIN photos ON photos.id = posts.photo_id ' +
-        'WHERE users.email = ?', [req.user.email],
+        'WHERE users.email = ? ORDER BY date_created DESC', [req.user.email],
         function (err, rows, fields) {
             if (!err) {
                 console.log('Request Completed');
@@ -52,12 +76,9 @@ function returnFeed(req, res) {
 
 
 function addUser(req, res) {
-    console.log("Getting Values");
-    console.log("USER", req.user);
     var email = req.user.email;
     var first_name = req.user.givenName;
     var last_name = req.user.surname;
-    console.log(email);
     if (email == undefined) {
         console.log("Error getting values for query");
         res.writeHead(500);
@@ -65,7 +86,6 @@ function addUser(req, res) {
         res.end();
     }
     else {
-        console.log("querying");
         //check email or username exists
         connection.query('SELECT * FROM users WHERE email=?', [email],
             function (err, rows, fields) {
@@ -106,7 +126,6 @@ function addUser(req, res) {
 }
 
 function post(req, res) {
-    console.log("POSTING");
     var img = req.body.image;
     var desc = req.body.desc;
     var location = req.body.location;
@@ -137,7 +156,7 @@ function post(req, res) {
                             photo_id = rows.insertId;
 
                             if (photo_id != null) {
-                                connection.query("INSERT INTO posts VALUES (DEFAULT, ?, ?, ?, DEFAULT, ?)", [user_id, desc, location, photo_id],
+                                connection.query("INSERT INTO posts VALUES (DEFAULT, ?, ?, ?, DEFAULT, ?, DEFAULT, DEFAULT)", [user_id, desc, location, photo_id],
                                     function (err, rows, fields) {
                                         if (err) {
                                             res.writeHead(500);

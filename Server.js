@@ -9,14 +9,16 @@ var app = express();
 app.use(body_parser.json({limit: '50mb'}));
 app.use(body_parser.urlencoded({extended: true, limit: '50mb'}));
 app.use('/', routes);
+app.get('/stormpath', stormpath.loginRequired, function(req, res){
+    console.log("USERS", req.user);
+});
 app.use(stormpath.init(app, {
-        expand: {
-            customData: true
-        },
-        web: {
-            produces: ['application/json']
+    web: {
+        register: {
+            nextUri: '/add_user'
         }
     }
+}
 ));
 
 app.on('stormpath.ready', function () {
